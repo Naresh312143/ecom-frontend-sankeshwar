@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import Loading from "../components/Loading";
 import { ArrowLeft, Star, ShoppingCart } from "lucide-react";
@@ -9,6 +9,8 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -25,6 +27,19 @@ const ProductDetail = () => {
 
     fetchProduct();
   }, [id]);
+
+  const handleAddToCart = async () => {
+    try {
+      await api.post("/cart/add", {
+        productId: product._id,
+        quantity: 1,
+      });
+
+      navigate("/cart");
+    } catch (err) {
+      console.error("You must be logged in to add items to cart.");
+    }
+  };
 
   if (loading) return <Loading />;
 
@@ -108,7 +123,10 @@ const ProductDetail = () => {
             </p>
           </div>
 
-          <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2">
+          <button
+            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2"
+            onClick={handleAddToCart}
+          >
             <ShoppingCart className="h-5 w-5" />
             <span>Add to Cart</span>
           </button>
